@@ -1,0 +1,18 @@
+{
+  "name": "mini-erp-crm",
+  "version": "1.0.0",
+  "description": "Mini ERP + CRM Operations Portal for Wholesale/Distribution",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:seed": "cd backend && npm run db:seed",
+    "test:flow": "cd backend && npm run test:flow"
+  },
+  "keywords": ["erp", "crm", "wholesale", "distribution", "inventory", "challan"],
+  "author": "",
+  "license": "ISC"
+}
