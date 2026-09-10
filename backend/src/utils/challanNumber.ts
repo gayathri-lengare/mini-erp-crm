@@ -13,7 +13,7 @@ export async function generateNextChallanNumber(client?: PoolClient): Promise<st
     SELECT challan_number
     FROM challans
     WHERE challan_number LIKE $1
-    ORDER BY id DESC
+    ORDER BY challan_number DESC
     LIMIT 1
   `;
 
