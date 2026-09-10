@@ -1,0 +1,399 @@
+{
+  "info": {
+    "_postman_id": "8f88a999-1234-5678-90ab-cdef12345678",
+    "name": "Mini ERP + CRM Operations Portal API Collection",
+    "description": "Comprehensive REST API Collection covering Auth, Customer CRM, Products, Stock Movements, and Transactional Sales Challans with role authentication, validation errors, and business edge cases.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "salesToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "challanId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as Admin (Success)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.expect(pm.response.code).to.eql(200);",
+                  "pm.collectionVariables.set('adminToken', jsonData.data.token);",
+                  "pm.collectionVariables.set('token', jsonData.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login as Sales (Success)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.expect(pm.response.code).to.eql(200);",
+                  "pm.collectionVariables.set('salesToken', jsonData.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sales@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"wrongpass\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Get Authenticated Profile (GET /auth/me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Customer CRM",
+      "item": [
+        {
+          "name": "Get All Customers (Paginated, Search & Filter)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/customers?page=1&limit=10&status=Active&customer_type=Wholesale",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "Active" },
+                { "key": "customer_type", "value": "Wholesale" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Customer (Success 201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('customerId', jsonData.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_name\": \"Kalyan Logistics & Supplies\",\n  \"mobile\": \"9812345678\",\n  \"email\": \"procurement@kalyanlogistics.in\",\n  \"business_name\": \"Kalyan Logistics Hub\",\n  \"gst_number\": \"27AABCK9999F1Z1\",\n  \"customer_type\": \"Distributor\",\n  \"address\": \"Sector 18, Vashi, Navi Mumbai\",\n  \"status\": \"Active\",\n  \"notes\": \"Regular bulk buyer for barcode scanners.\"\n}"
+            },
+            "url": "{{baseUrl}}/customers"
+          }
+        },
+        {
+          "name": "Create Customer - Missing Required Fields (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_name\": \"\"\n}"
+            },
+            "url": "{{baseUrl}}/customers"
+          }
+        },
+        {
+          "name": "Get Customer By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/customers/{{customerId}}"
+          }
+        },
+        {
+          "name": "Add Customer Follow-up Note (POST /customers/:id/follow-ups)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Discussed Q4 festival order discounts. Sent wholesale rate card.\",\n  \"follow_up_date\": \"2026-09-25\"\n}"
+            },
+            "url": "{{baseUrl}}/customers/{{customerId}}/follow-ups"
+          }
+        },
+        {
+          "name": "Get Customer Follow-up History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/customers/{{customerId}}/follow-ups"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Products & Inventory",
+      "item": [
+        {
+          "name": "Get Products (Catalog & Low-stock filter)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/products?page=1&limit=10&low_stock=true"
+          }
+        },
+        {
+          "name": "Create Product (Success 201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('productId', jsonData.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_name\": \"Industrial Barcode Label Roll 50x25mm\",\n  \"sku\": \"LBL-5025-IND\",\n  \"category\": \"Packaging\",\n  \"unit_price\": 350.00,\n  \"current_stock\": 100,\n  \"minimum_stock\": 20,\n  \"warehouse_location\": \"Bay D-105\"\n}"
+            },
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Create Product - RBAC Unauthorized (Sales Role -> 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_name\": \"Unauthorized Product Creation\",\n  \"sku\": \"UNAUTH-001\",\n  \"category\": \"General\",\n  \"unit_price\": 100\n}"
+            },
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Create Product - Duplicate SKU Conflict (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_name\": \"Duplicate Test\",\n  \"sku\": \"SCAN-2D-001\",\n  \"category\": \"Electronics\",\n  \"unit_price\": 3500.00\n}"
+            },
+            "url": "{{baseUrl}}/products"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Stock Movements",
+      "item": [
+        {
+          "name": "Get Stock Movements Audit Ledger",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/stock-movements?page=1&limit=15&movement_type=OUT"
+          }
+        },
+        {
+          "name": "Manual Stock Intake / Adjustment (POST /stock-movements/adjust)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 20,\n  \"movement_type\": \"IN\",\n  \"reason\": \"Vendor shipment received: PO-2026-901\"\n}"
+            },
+            "url": "{{baseUrl}}/stock-movements/adjust"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Sales Challans (Core Business Logic)",
+      "item": [
+        {
+          "name": "Create Challan as DRAFT (Stock NOT deducted)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('challanId', jsonData.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"status\": \"DRAFT\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/challans"
+          }
+        },
+        {
+          "name": "Confirm Challan (Transactional Stock Deduction & OUT Movement)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{salesToken}}" }],
+            "url": "{{baseUrl}}/challans/{{challanId}}/confirm"
+          }
+        },
+        {
+          "name": "Confirm Challan - Insufficient Stock Error (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{salesToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"status\": \"CONFIRMED\",\n  \"items\": [\n    {\n      \"product_id\": 6,\n      \"quantity\": 99999\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/challans"
+          }
+        },
+        {
+          "name": "Get Challan By ID (Snapshot view)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/challans/{{challanId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Dashboard",
+      "item": [
+        {
+          "name": "Get Executive Dashboard Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/dashboard/stats"
+          }
+        }
+      ]
+    }
+  ]
+}
