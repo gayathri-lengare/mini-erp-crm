@@ -109,19 +109,6 @@ Client triggers PUT /api/challans/:id/confirm
                            ▼
               Release DB Client to Pool & Return 200
 ```
-
-### Why Product Snapshot Information?
-In `challan_items`, we store:
-- `product_name_snapshot`
-- `sku_snapshot`
-- `unit_price_snapshot`
-- `quantity`
-- `total_price`
-
-**Interview Explanation**: If a company sells 5 units of "Laser Scanner" at \$3,500 today, and next month the price increases to \$4,200 or the product name is updated, historic challans and tax invoices must accurately reflect the original agreement at the time the order was placed.
-
----
-
 ## 5. Database Schema
 
 ```sql
@@ -268,7 +255,7 @@ CREATE INDEX idx_follow_ups_customer ON follow_ups(customer_id);
 ## 7. Folder Structure
 
 ```
-Mini/
+Mini-ERP/
 ├── backend/
 │   ├── src/
 │   │   ├── config/             # db.ts (pg pool), env.ts
@@ -409,39 +396,7 @@ The test verifies:
 19. Boundary checks: Invalid login (401), unauthorized role (403), duplicate SKU (409), customer search and pagination.
 
 ---
-
-## 11. Free Cloud Deployment Guide
-
-### Database (Free Tier on Neon or Supabase)
-1. Sign up at [Neon.tech](https://neon.tech) or [Supabase.com](https://supabase.com).
-2. Create a free PostgreSQL project and copy the connection string:
-   `postgresql://neondb_owner:password@ep-xyz.us-east-2.aws.neon.tech/neondb?sslmode=require`
-
-### Backend (Free on Render or Railway)
-1. Push this repository to GitHub.
-2. In [Render.com](https://render.com), click **New Web Service** and connect the repository.
-3. Settings:
-   - **Root Directory**: `backend`
-   - **Build Command**: `npm install && npm run build && npm run db:migrate && npm run db:seed`
-   - **Start Command**: `npm start`
-4. Environment Variables:
-   - `DATABASE_URL`: *(Your Neon/Supabase connection string)*
-   - `JWT_SECRET`: *(A random 32-character string)*
-   - `FRONTEND_URL`: *(Your deployed Vercel URL)*
-   - `PORT`: `5000`
-
-### Frontend (Free on Vercel or Netlify)
-1. In [Vercel.com](https://vercel.com), click **Add New Project** and connect the repository.
-2. Settings:
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-3. Environment Variables:
-   - `VITE_API_URL`: `https://your-render-backend.onrender.com/api`
-
----
-
-## 12. Known Limitations & Future Improvements
+## 11. Known Limitations & Future Improvements
 
 - **Known Limitations**:
   - Currency is formatted for standard Indian Rupee (`₹` / `INR`) by default for wholesale distribution.
