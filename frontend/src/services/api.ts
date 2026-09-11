@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-// Use backend base URL from env if provided or relative /api for Vite proxy
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+let API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+// Auto-normalize if VITE_API_URL was passed without '/api'
+if (
+  API_BASE_URL.startsWith('http') &&
+  !API_BASE_URL.endsWith('/api') &&
+  !API_BASE_URL.endsWith('/api/')
+) {
+  API_BASE_URL = `${API_BASE_URL.replace(/\/+$/, '')}/api`;
+}
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
