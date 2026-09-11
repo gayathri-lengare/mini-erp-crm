@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: mini-erp-crm-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build && npm run db:migrate && npm run db:seed
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
