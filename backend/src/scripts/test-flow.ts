@@ -8,7 +8,10 @@ const BASE_URL = `http://localhost:${TEST_PORT}/api`;
 
 let server: Server;
 
-async function request(endpoint: string, options: RequestInit = {}) {
+async function request(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<{ status: number; ok: boolean; data: any }> {
   const url = `${BASE_URL}${endpoint}`;
   const res = await fetch(url, {
     ...options,
@@ -17,7 +20,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
       ...(options.headers || {}),
     },
   });
-  const data = await res.json().catch(() => null);
+  const data: any = await res.json().catch(() => null);
   return { status: res.status, ok: res.ok, data };
 }
 
