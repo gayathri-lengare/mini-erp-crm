@@ -63,6 +63,28 @@ export function createApp(): Application {
     });
   });
 
+  // Root welcome / API status endpoint
+  app.get('/', (req: Request, res: Response) => {
+    res.status(200).json({
+      success: true,
+      message: 'ApexFlow Mini ERP + CRM Backend API is live and operational.',
+      service: 'mini-erp-crm-backend',
+      version: '1.0.0',
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      frontend: env.FRONTEND_URL || 'https://mini-erp-crm-seven-gamma.vercel.app',
+      endpoints: {
+        health: '/health',
+        auth: '/api/auth/login',
+        customers: '/api/customers',
+        products: '/api/products',
+        stockMovements: '/api/stock-movements',
+        challans: '/api/challans',
+        dashboard: '/api/dashboard/stats',
+      },
+    });
+  });
+
   // Mount API routes at both /api and root / for resilience against VITE_API_URL format
   app.use('/api', routes);
   app.use('/', routes);
